@@ -5,7 +5,7 @@
     "license": "MIT",
     "scripts": {
         "start": "tsx api/ask.ts",
-        "dev": "tsx ./src/app.ts"
+        "dev": "tsx ./src/main.ts"
     },
     "devDependencies": {
         "@types/async": "^3.2.20",

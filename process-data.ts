@@ -14,6 +14,13 @@ const openai = new OpenAI({
 })
 let i = 0
 async function main() {
+    for (let item of data) {
+        item.embeddings = item.embedding
+        delete item.embedding
+        delete item.toIndexDataEn
+    }
+    fs.writeFileSync('data.json', JSON.stringify(data, null, 4))
+
     // await tranlate()
     // const question = 'cum ma casatoresc legal in republica moldova?'
     // const questionEmbedding = await createEmbedding(question)
