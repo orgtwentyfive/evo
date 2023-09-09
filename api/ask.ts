@@ -20,15 +20,16 @@ app.get('*', async (req, res) => {
 
 app.post('/ask', async (req, res) => {
     const { conversations, data } = req.body
-    let question = conversations.at(-1).content
-    conversations.at(-1).content = `Respond with "NO" if question is not related to the context, else answer it.\n ${
-        conversations.at(-1).content
-    }`
     if (data) {
         const article_ids = data.map((e: any) => e.code)
         res.write(`${JSON.stringify({ data, conversations })}\n`)
 
-        const streams = await answer(article_ids, conversations)
+        const streams = await answer(article_ids, [
+            {
+                role: 'user',
+                content: `Respond with "NO" if question is not related to the context, else answer it.\n${conversations.at(-1).content}`,
+            },
+        ])
         for await (const stream of streams) {
             const data = stream.choices[0].delta.content
             if (data) {
@@ -38,6 +39,7 @@ app.post('/ask', async (req, res) => {
         res.end()
         return
     }
+    let question = conversations.at(-1).content
     const top = await getTop(question, 40)
     const filtered = await filterEmbeddings(top, question)
 
@@ -48,8 +50,11 @@ app.post('/ask', async (req, res) => {
     })
 
     res.write(`${JSON.stringify({ data: resultData, conversations })}\n`)
-
-    const streams = await answer(filtered, conversations)
+    const conversation = conversations.pop()
+    const streams = await answer(filtered, [
+        ...conversations,
+        { role: 'user', content: `Respond with "NO" if question is not related to the context, else answer it.\n${question}` },
+    ])
     for await (const stream of streams) {
         const data = stream.choices[0].delta.content
         if (data) {
