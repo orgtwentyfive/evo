@@ -4,11 +4,11 @@ import { filterEmbeddings } from './filterEmbeddings'
 import { data, getTop } from './getTop'
 
 async function main() {
-    const converstationId = '014'
+    const converstationId = Math.random().toString()
 
     let conversation = await getData(converstationId)
 
-    const question = 'cat costa pasaportul?'
+    const question = 'cum export animale?'
     // // const question = 'am nevoie de un extras din registru unitatilor de drept?'
     // // ce documente am nevoie?
     // // cat costa?
@@ -29,10 +29,7 @@ async function main() {
     }
 
     await setData(converstationId, {
-        conversations: [
-            ...conversation.conversations!,
-            { content: `Respond with "NO" if question is not related to the context, else answer it.\n${question}`, role: 'user' },
-        ],
+        conversations: [...conversation.conversations!, { content: `${question}`, role: 'user' }],
     })
 
     conversation = await getData(converstationId)
