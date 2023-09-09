@@ -39,6 +39,7 @@ export async function answer(articles: string[], conversation: Conversation[]) {
     const response = await openai.chat.completions.create({
         model: 'gpt-4',
         stream: true,
+        temperature: 0,
         messages: [
             {
                 role: 'system',
