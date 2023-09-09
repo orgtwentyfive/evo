@@ -3,32 +3,60 @@ import { filterEmbeddings } from '../src/filterEmbeddings'
 import { getTop } from '../src/getTop'
 import express from 'express'
 import cors from 'cors'
+import { getData } from '../src/db'
+import { answer } from '../src/answer'
+import json from '../data.json'
+
+const bigData = json as any[]
+
 const app = express()
 app.use(express.json())
 app.use(cors())
 const port = 3000
 
-app.post('/ask', async (request, response) => {
-    if (!request.url) return response.status(400)
-    const question = request.body.question
-    const conversation_id = request.body.conversation_id
+app.get('*', async (req, res) => {
+    res.send('Test')
+})
 
-    if (!request.body) {
-        return response.status(400).json({ message: 'No body provided' })
+app.post('/ask', async (req, res) => {
+    const { conversations, data } = req.body
+    let question = conversations.at(-1).content
+    conversations.at(-1).content = `Respond with "NO" if question is not related to the context, else answer it.\n ${
+        conversations.at(-1).content
+    }`
+    if (data) {
+        const article_ids = data.map((e: any) => e.code)
+        res.write(`${JSON.stringify({ data, conversations })}\n`)
+
+        const streams = await answer(article_ids, conversations)
+        for await (const stream of streams) {
+            const data = stream.choices[0].delta.content
+            if (data) {
+                res.write(data)
+            }
+        }
+        res.end()
+        return
     }
-
-    if (!question) {
-        return response.status(400).json({ message: 'No question provided' })
-    }
-
-    if (!conversation_id) {
-        return response.status(400).json({ message: 'No conversation id provided' })
-    }
-
     const top = await getTop(question, 40)
     const filtered = await filterEmbeddings(top, question)
 
-    return response.status(200).json(filtered)
+    const resultData = filtered.map((e: string) => {
+        const entry = bigData.find((dataEntry) => dataEntry['code'] == e)
+        const source = entry.type === 'event' ? `https://servicii.gov.md/ro/event/${entry.code}` : `https://servicii.gov.md/ro/service/${e}`
+        return { code: e, source }
+    })
+
+    res.write(`${JSON.stringify({ data: resultData, conversations })}\n`)
+
+    const streams = await answer(filtered, conversations)
+    for await (const stream of streams) {
+        const data = stream.choices[0].delta.content
+        if (data) {
+            res.write(data)
+        }
+    }
+    res.end()
 })
 
 app.listen(port, () => {
