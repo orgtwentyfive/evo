@@ -6,6 +6,13 @@ export default async function handler(request: VercelRequest, response: VercelRe
     if (!request.url) return response.status(400)
     const question = request.body.question
     const conversation_id = request.body.conversation_id
+
+    if (!question) {
+        return response.status(400).json({ message: 'No question provided' })
+    }
+    if (!conversation_id) {
+        return response.status(400).json({ message: 'No conversation id provided' })
+    }
     const top = await getTop(question, 40)
     const filtered = await filterEmbeddings(top, question)
 
