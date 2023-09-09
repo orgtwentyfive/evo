@@ -2,10 +2,10 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { filterEmbeddings } from '../src/filterEmbeddings'
 import { getTop } from '../src/getTop'
 import express from 'express'
-
+import cors from 'cors'
 const app = express()
 app.use(express.json())
-
+app.use(cors())
 const port = 3000
 
 app.post('/ask', async (request, response) => {
