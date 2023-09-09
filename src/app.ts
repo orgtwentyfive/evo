@@ -8,7 +8,7 @@ async function main() {
 
     let conversation = await getData(converstationId)
 
-    const question = 'ce beneficii primeste sotia cand naste un copil?'
+    const question = 'cum fac cazier?'
     // // const question = 'am nevoie de un extras din registru unitatilor de drept?'
     // // ce documente am nevoie?
     // // cat costa?
