@@ -1,8 +1,6 @@
-import { getTop } from './getTop'
 import { openai } from './openai'
 
 export async function filterEmbeddings(topString: string, question: string) {
-    // This code is for v4 of the openai package: npmjs.com/package/openai
     const response = await openai.chat.completions.create({
         model: 'gpt-4',
         messages: [
@@ -30,5 +28,5 @@ export async function filterEmbeddings(topString: string, question: string) {
         return []
     }
 
-    return matches.map(Number)
+    return matches
 }
