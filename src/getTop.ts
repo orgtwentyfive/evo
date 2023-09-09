@@ -4,20 +4,19 @@ import { similarity } from "llamaindex";
 
 let data = json as any[];
 
-export async function getTop(question: string) {
+export async function getTop(question: string, count: number = 20) {
 	const questionEmbedding = await createEmbedding(question);
-	let num = 20;
 	let topServices: any[] = [];
 	let topScores: number[] = [];
 	for (const service of data) {
 		if (!service.emmbedings) continue;
 		for (const emmbedings of service.emmbedings) {
 			const sim = similarity(questionEmbedding, emmbedings);
-			if (topScores.length < num) {
+			if (topScores.length < count) {
 				topScores.push(sim);
 				topServices.push(service);
 			}
-			if (topScores.length === num) {
+			if (topScores.length === count) {
 				const minScore = Math.min(...topScores);
 				const minIndex = topScores.indexOf(minScore);
 				if (sim > minScore) {
@@ -30,7 +29,7 @@ export async function getTop(question: string) {
 
 	let stringTop = "";
 	for (let i = 0; i < topServices.length; i++) {
-		stringTop += `${topServices[i].title} - ${topScores[i]}; code: ${topServices[i].code}\n`;
+		stringTop += `title: ${topServices[i].title} - ${topScores[i]}; code: ${topServices[i].code}\n`;
 	}
 	return stringTop;
 }
