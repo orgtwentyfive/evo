@@ -1,10 +1,4 @@
-const OPENAI_API_KEY = "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";
-process.env.OPENAI_API_KEY = OPENAI_API_KEY;
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-	apiKey: OPENAI_API_KEY,
-});
+import { openai } from "./openai";
 
 export async function createEmbedding(text: string) {
 	const { data } = await openai.embeddings.create({
