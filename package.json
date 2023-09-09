@@ -1,0 +1,28 @@
+{
+    "name": "evo",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "scripts": {
+        "start": "tsx index.tsx"
+    },
+    "devDependencies": {
+        "@types/async": "^3.2.20",
+        "@types/copy-paste": "^1.1.31",
+        "@types/node": "^20.5.9",
+        "@types/turndown": "^5.0.1",
+        "tsx": "^3.12.8"
+    },
+    "dependencies": {
+        "async": "^3.2.4",
+        "axios": "^1.5.0",
+        "copy-paste": "^1.5.3",
+        "gpt-3-encoder": "^1.1.4",
+        "llamaindex": "^0.0.26",
+        "openai": "^4.5.0",
+        "puppeteer": "^21.1.1",
+        "puppeteer-extra": "^3.3.6",
+        "puppeteer-extra-plugin-stealth": "^2.11.2",
+        "turndown": "^7.1.2"
+    }
+}
