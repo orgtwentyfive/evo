@@ -27,7 +27,7 @@ app.post('/ask', async (req, res) => {
         const streams = await answer(article_ids, [
             {
                 role: 'user',
-                content: `Respond with "NO" if question is not related to the context, else answer it.\n${conversations.at(-1).content}`,
+                content: `${conversations.at(-1).content}`,
             },
         ])
         for await (const stream of streams) {
@@ -51,10 +51,7 @@ app.post('/ask', async (req, res) => {
 
     res.write(`${JSON.stringify({ data: resultData, conversations })}\n`)
     const conversation = conversations.pop()
-    const streams = await answer(filtered, [
-        ...conversations,
-        { role: 'user', content: `Respond with "NO" if question is not related to the context, else answer it.\n${question}` },
-    ])
+    const streams = await answer(filtered, [...conversations, { role: 'user', content: `${question}` }])
     for await (const stream of streams) {
         const data = stream.choices[0].delta.content
         if (data) {
