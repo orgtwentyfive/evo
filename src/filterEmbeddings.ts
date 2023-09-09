@@ -22,7 +22,7 @@ export async function filterEmbeddings(topString: string, question: string) {
     })
 
     const filtered = response.choices[0].message.content
-    const matches = filtered?.match(/\d+/g)
+    const matches = filtered?.match(/[A-Z]{0,5}\d+/gm)
 
     if (!matches || !matches.length) {
         return []
