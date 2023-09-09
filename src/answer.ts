@@ -43,7 +43,7 @@ export async function answer(articles: string[], conversation: Conversation[]) {
         messages: [
             {
                 role: 'system',
-                content: `You are a bot that return a single organized answer based on multiple articles provided by the user. Summarize it but keep important details. Answer only in romanian and with actual information.\n Do not assume, use only existing information.\n Format the final response in markdown without title.`,
+                content: `You are a bot that return a single organized answer based on multiple articles provided by the user. Summarize it but keep important details. Answer only in romanian and with actual information.\n Do not assume, use only existing information.\n Format the final response in markdown without title.\n Use as much markdown as you can.`,
             },
             {
                 role: 'user',
