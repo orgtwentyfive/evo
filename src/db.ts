@@ -11,21 +11,21 @@ export const firebase = admin.initializeApp({
 
 export const firestore = firebase.firestore()
 
-interface Conversation {
-    type: 'assistent' | 'user'
-    text: string
+export interface Conversation {
+    role: 'assistant' | 'user'
+    content: string
 }
 
 interface EvaDbData {
-    articleIds: string[]
-    conversations: Conversation[]
+    articleIds?: string[]
+    conversations?: Conversation[]
 }
 
-export const getData = async (id: string) => {
+export const getData = async (id: string): Promise<EvaDbData> => {
     const snap = await firestore.collection('eva').doc(id).get()
-    return snap.data()
+    return snap.data() as any
 }
 
 export const setData = async (id: string, data: EvaDbData) => {
-    await firestore.collection('eva').doc(id).set(data)
+    await firestore.collection('eva').doc(id).set(data, { merge: true })
 }

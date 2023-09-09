@@ -1,18 +1,56 @@
 import { answer } from './answer'
+import { getData, setData } from './db'
 import { filterEmbeddings } from './filterEmbeddings'
 import { data, getTop } from './getTop'
 
 async function main() {
-    const question = 'care sunt toate variantele correcte pentru tarife de casatorie?'
-    // const question = 'am nevoie de un extras din registru unitatilor de drept?'
-    // ce documente am nevoie?
-    // cat costa?
-    const top = await getTop(question, 40)
-    const filtered = await filterEmbeddings(top, question)
-    console.log(`Am gasit informatie in urmatoarele articole\n${filtered.map((e) => `https://servicii.gov.md/ro/service/${e}`).join('\n')}`)
+    const converstationId = '014'
+
+    let conversation = await getData(converstationId)
+
+    const question = 'cat costa pasaportul?'
+    // // const question = 'am nevoie de un extras din registru unitatilor de drept?'
+    // // ce documente am nevoie?
+    // // cat costa?
+    if (!conversation) {
+        conversation = { articleIds: [], conversations: [] }
+    }
+
+    if (!conversation.articleIds!.length) {
+        const top = await getTop(question, 40)
+        const filtered = await filterEmbeddings(top, question)
+        await setData(converstationId, {
+            articleIds: filtered,
+            conversations: conversation.conversations,
+        })
+        console.log(
+            `Am gasit informatie in urmatoarele articole\n${filtered.map((e) => `https://servicii.gov.md/ro/service/${e}`).join('\n')}`,
+        )
+    }
+
+    await setData(converstationId, {
+        conversations: [
+            ...conversation.conversations!,
+            { content: `Respond with "NO" if question is not related to the context, else answer it.\n${question}`, role: 'user' },
+        ],
+    })
+
+    conversation = await getData(converstationId)
+
+    console.log(conversation)
     console.log(`Caut prin articole...`)
-    const answers = await answer(filtered, question)
-    console.log(answers)
+    const streams = await answer(conversation.articleIds!, conversation.conversations!)
+    let answers = ''
+    for await (const stream of streams) {
+        answers += stream.choices[0].delta.content
+        console.clear()
+        console.log(answers)
+    }
+
+    await setData(converstationId, {
+        conversations: [...conversation.conversations!, { content: answers, role: 'assistant' }],
+    })
+    // console.log(answers)
 }
 
 main()

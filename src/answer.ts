@@ -2,8 +2,9 @@ import { data } from './getTop'
 import { openai } from './openai'
 import { map } from 'async'
 import { encode } from 'gpt-3-encoder'
+import { Conversation } from './db'
 
-export async function answer(articles: string[], question: string) {
+export async function answer(articles: string[], conversation: Conversation[]) {
     const articleContents = articles
         .map((articleCode) => {
             const entry = data.find((dataEntry) => dataEntry['code'] == articleCode)
@@ -18,14 +19,12 @@ export async function answer(articles: string[], question: string) {
             messages: [
                 {
                     role: 'system',
-                    content: `You are a bot that finds the answer in the provided article based on a question from the user.\nYour article is: ${
+                    content: `You are a bot that finds the answer in the provided article based on a question from the user.\nDo not answer with information outside the articles.\nDo not assume information, use only information in the article\nYour article is: ${
                         content!.content
                     }`,
                 },
-                {
-                    role: 'user',
-                    content: question,
-                },
+
+                ...conversation,
             ],
         })
         console.log(`Am analizat articolul ${content!.title}`)
@@ -51,10 +50,10 @@ export async function answer(articles: string[], question: string) {
             },
         ],
     })
-    let string = ''
-    for await (let stream of response) {
-        string += stream.choices[0].delta.content
-        console.clear()
-        console.log(string)
-    }
+
+    // let string = ''
+    // for await (let stream of response) {
+    //     string += stream.choices[0].delta.content
+    // }
+    return response
 }
