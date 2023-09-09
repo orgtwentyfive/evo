@@ -5,8 +5,7 @@
     "license": "MIT",
     "scripts": {
         "start": "tsx index.tsx",
-        "dev":"tsx ./process-data.ts",
-        "dorin":"tsx ./dorin.ts"
+        "dev":"tsx ./src/app.ts"
     },
     "devDependencies": {
         "@types/async": "^3.2.20",
