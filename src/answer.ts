@@ -12,6 +12,7 @@ export async function answer(articles: string[], conversation: Conversation[]) {
             return { title: entry.title, content: entry.toIndexData }
         })
         .filter((e) => e !== undefined)
+        .filter((e) => e?.content.length < 25000)
 
     const responses: { title: string; data: string }[] = await map(articleContents, async (content) => {
         const response = await openai.chat.completions.create({
