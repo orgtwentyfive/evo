@@ -15,7 +15,7 @@ app.use(cors())
 const port = 3000
 
 app.get('*', async (req, res) => {
-    res.send('Test')
+    res.send('spinner')
 })
 
 app.post('/ask', async (req, res) => {
