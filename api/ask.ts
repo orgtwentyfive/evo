@@ -1,8 +1,14 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { filterEmbeddings } from '../src/filterEmbeddings'
 import { getTop } from '../src/getTop'
+import express from 'express'
 
-export default async function handler(request: VercelRequest, response: VercelResponse) {
+const app = express()
+app.use(express.json())
+
+const port = 3000
+
+app.post('/ask', async (request, response) => {
     if (!request.url) return response.status(400)
     const question = request.body.question
     const conversation_id = request.body.conversation_id
@@ -23,4 +29,8 @@ export default async function handler(request: VercelRequest, response: VercelRe
     const filtered = await filterEmbeddings(top, question)
 
     return response.status(200).json(filtered)
-}
+})
+
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`)
+})
