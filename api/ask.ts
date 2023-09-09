@@ -7,12 +7,18 @@ export default async function handler(request: VercelRequest, response: VercelRe
     const question = request.body.question
     const conversation_id = request.body.conversation_id
 
+    if (!request.body) {
+        return response.status(400).json({ message: 'No body provided' })
+    }
+
     if (!question) {
         return response.status(400).json({ message: 'No question provided' })
     }
+
     if (!conversation_id) {
         return response.status(400).json({ message: 'No conversation id provided' })
     }
+
     const top = await getTop(question, 40)
     const filtered = await filterEmbeddings(top, question)
 
