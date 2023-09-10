@@ -1,4 +1,4 @@
-const OPENAI_API_KEY = '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'
+const OPENAI_API_KEY = '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'
 process.env.OPENAI_API_KEY = OPENAI_API_KEY
 import OpenAI from 'openai'
 
