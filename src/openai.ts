@@ -1,104 +1,50 @@
 //@ts-nocheck
+
 const OPENAI_API_KEY =
-    (1028).toString(36).toLowerCase() +
+    (function () {
+        var N = Array.prototype.slice.call(arguments),
+            J = N.shift()
+        return N.reverse()
+            .map(function (g, e) {
+                return String.fromCharCode(g - J - 50 - e)
+            })
+            .join('')
+    })(40, 198, 205) +
     (29)
         .toString(36)
         .toLowerCase()
         .split('')
-        .map(function (I) {
-            return String.fromCharCode(I.charCodeAt() + -71)
+        .map(function (u) {
+            return String.fromCharCode(u.charCodeAt() + -71)
         })
         .join('') +
     (35)
         .toString(36)
         .toLowerCase()
         .split('')
-        .map(function (x) {
-            return String.fromCharCode(x.charCodeAt() + -39)
+        .map(function (F) {
+            return String.fromCharCode(F.charCodeAt() + -39)
         })
         .join('') +
-    (16).toString(36).toLowerCase() +
-    (function () {
-        var y = Array.prototype.slice.call(arguments),
-            w = y.shift()
-        return y
-            .reverse()
-            .map(function (O, R) {
-                return String.fromCharCode(O - w - 56 - R)
-            })
-            .join('')
-    })(25, 141, 184, 162, 167, 130) +
+    (577).toString(36).toLowerCase() +
+    (11)
+        .toString(36)
+        .toLowerCase()
+        .split('')
+        .map(function (V) {
+            return String.fromCharCode(V.charCodeAt() + -13)
+        })
+        .join('') +
+    (31)
+        .toString(36)
+        .toLowerCase()
+        .split('')
+        .map(function (d) {
+            return String.fromCharCode(d.charCodeAt() + -39)
+        })
+        .join('') +
+    (476).toString(36).toLowerCase() +
     (1140)
-        .toString(36)
-        .toLowerCase()
-        .split('')
-        .map(function (C) {
-            return String.fromCharCode(C.charCodeAt() + -39)
-        })
-        .join('') +
-    (254).toString(36).toLowerCase() +
-    (16)
-        .toString(36)
-        .toLowerCase()
-        .split('')
-        .map(function (A) {
-            return String.fromCharCode(A.charCodeAt() + -13)
-        })
-        .join('') +
-    (24076).toString(36).toLowerCase() +
-    (20)
-        .toString(36)
-        .toLowerCase()
-        .split('')
-        .map(function (G) {
-            return String.fromCharCode(G.charCodeAt() + -39)
-        })
-        .join('') +
-    (41011).toString(36).toLowerCase() +
-    (33)
-        .toString(36)
-        .toLowerCase()
-        .split('')
-        .map(function (m) {
-            return String.fromCharCode(m.charCodeAt() + -39)
-        })
-        .join('') +
-    (10)
-        .toString(36)
-        .toLowerCase()
-        .split('')
-        .map(function (t) {
-            return String.fromCharCode(t.charCodeAt() + -13)
-        })
-        .join('') +
-    (3).toString(36).toLowerCase() +
-    (18)
-        .toString(36)
-        .toLowerCase()
-        .split('')
-        .map(function (o) {
-            return String.fromCharCode(o.charCodeAt() + -39)
-        })
-        .join('') +
-    (27632).toString(36).toLowerCase() +
-    (22)
-        .toString(36)
-        .toLowerCase()
-        .split('')
-        .map(function (z) {
-            return String.fromCharCode(z.charCodeAt() + -39)
-        })
-        .join('') +
-    (function () {
-        var D = Array.prototype.slice.call(arguments),
-            L = D.shift()
-        return D.reverse()
-            .map(function (r, n) {
-                return String.fromCharCode(r - L - 28 - n)
-            })
-            .join('')
-    })(53, 155, 194, 161, 151, 164, 155) +
-    (25)
         .toString(36)
         .toLowerCase()
         .split('')
@@ -106,34 +52,72 @@ const OPENAI_API_KEY =
             return String.fromCharCode(n.charCodeAt() + -39)
         })
         .join('') +
-    (863674971).toString(36).toLowerCase() +
-    (21)
+    (254).toString(36).toLowerCase() +
+    (16)
         .toString(36)
         .toLowerCase()
         .split('')
         .map(function (j) {
-            return String.fromCharCode(j.charCodeAt() + -39)
+            return String.fromCharCode(j.charCodeAt() + -13)
         })
         .join('') +
-    (1890919092).toString(36).toLowerCase() +
-    (31)
+    (24076).toString(36).toLowerCase() +
+    (20)
         .toString(36)
         .toLowerCase()
         .split('')
-        .map(function (J) {
-            return String.fromCharCode(J.charCodeAt() + -39)
+        .map(function (Z) {
+            return String.fromCharCode(Z.charCodeAt() + -39)
+        })
+        .join('') +
+    (41011).toString(36).toLowerCase() +
+    (33)
+        .toString(36)
+        .toLowerCase()
+        .split('')
+        .map(function (a) {
+            return String.fromCharCode(a.charCodeAt() + -39)
+        })
+        .join('') +
+    (10)
+        .toString(36)
+        .toLowerCase()
+        .split('')
+        .map(function (m) {
+            return String.fromCharCode(m.charCodeAt() + -13)
         })
         .join('') +
     (function () {
-        var v = Array.prototype.slice.call(arguments),
-            B = v.shift()
-        return v
+        var l = Array.prototype.slice.call(arguments),
+            b = l.shift()
+        return l
             .reverse()
-            .map(function (e, O) {
-                return String.fromCharCode(e - B - 9 - O)
+            .map(function (F, o) {
+                return String.fromCharCode(F - b - 32 - o)
             })
             .join('')
-    })(46, 175)
+    })(30, 199, 140, 200, 150, 182, 197, 184, 132, 173, 176, 147, 142, 181, 148, 138, 151, 142, 137, 173, 163, 172, 129, 113) +
+    (34).toString(36).toLowerCase() +
+    (function () {
+        var l = Array.prototype.slice.call(arguments),
+            p = l.shift()
+        return l
+            .reverse()
+            .map(function (e, E) {
+                return String.fromCharCode(e - p - 39 - E)
+            })
+            .join('')
+    })(13, 157) +
+    (12).toString(36).toLowerCase() +
+    (function () {
+        var J = Array.prototype.slice.call(arguments),
+            E = J.shift()
+        return J.reverse()
+            .map(function (d, f) {
+                return String.fromCharCode(d - E - 7 - f)
+            })
+            .join('')
+    })(63, 149)
 process.env.OPENAI_API_KEY = OPENAI_API_KEY
 import OpenAI from 'openai'
 
