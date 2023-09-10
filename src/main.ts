@@ -1,7 +1,7 @@
 import '@total-typescript/ts-reset'
 import { map } from 'async'
 import {
-    answerBasedOnDocument,
+    answersBasedOnDocument,
     combineAnswers,
     createEmbedding,
     getTopEmbeddingMatch,
@@ -12,25 +12,28 @@ import {
 import { BigDataType } from './types'
 
 async function main() {
-    const question = 'cum dau in exploatare un impobil?'
+    const question = 'Cat costa cazier juridic?'
     const rephraseQuestion = await rephraseCorrectlyWithGpt4(question)
     console.log('Rephrased question:', rephraseQuestion)
 
     const embeddedQuestion = await createEmbedding(rephraseQuestion)
     const customFilter = getTopEmbeddingMatch(embeddedQuestion, 40)
-    const filteredByAi = await pickMostRelevantDocument(customFilter, question)
+    const filteredByAi = await pickMostRelevantDocument(customFilter, rephraseQuestion)
 
     const results = await map(filteredByAi, async (document: BigDataType) => {
-        const answer = await answerBasedOnDocument(document, question)
-        if (answer === 'NULL') return null
-        return { ...document, answer }
+        console.log('Searching for answers in:', document.title)
+        const answers = await answersBasedOnDocument(document, rephraseQuestion)
+        return {
+            ...document,
+            answers,
+        }
     })
+    console.log('Results:', results)
     const filteredResult = results.filter(Boolean)
     if (filteredResult.length === 0) {
         console.log('Nu am așa informație.')
         return
     }
-    console.log('Filtered result:', filteredResult.map)
     let result = ''
     for await (const stream of await combineAnswers(filteredResult)) {
         const streamText = stream.choices[0].delta?.content
@@ -39,6 +42,8 @@ async function main() {
             await write(streamText)
         }
     }
+    console.clear()
+    console.log(result)
 }
 
 main()

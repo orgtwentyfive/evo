@@ -75,8 +75,8 @@ async function main() {
             noDuplicate.push(item)
         }
     }
-
-    fs.writeFileSync('data.json', JSON.stringify(result, null, 4))
+    console.log('no duplicate', noDuplicate.length)
+    fs.writeFileSync('data.json', JSON.stringify(noDuplicate, null, 4))
 }
 
 main().then(() => console.log('Done!'))

@@ -14,36 +14,32 @@ const openai = new OpenAI({
 })
 let i = 0
 async function main() {
+    // let chunkSum = 0
+    // let chunkCount = 0
+    // let biggerThanOne = 0
+    // for (let service of data) {
+    //     const { toIndexData, chunks } = service
+    //     chunkSum += chunks.length
+    //     chunkCount++
+    //     if (chunks.length > 1) {
+    //         biggerThanOne++
+    //         console.log(`Service ${service.code} has ${chunks.length} chunks`)
+    //     }
+    // }
+    // console.log(chunkSum / chunkCount)
+    // console.log('Bigger than one', biggerThanOne)
     const sentenceSplitter = new SentenceSplitter({
-        chunkSize: 5000,
+        chunkSize: 10000,
         chunkOverlap: 1000,
     })
     for (let service of data) {
-        if (service.chunk) continue
         const { toIndexData } = service
-        const emmbedings = await Promise.all(
-            sentenceSplitter.splitText(toIndexData).map(async (text) => {
-                const { data } = await openai.embeddings.create({
-                    input: text,
-                    model: 'text-embedding-ada-002',
-                })
-                return data[0].embedding
-            }),
-        )
-        service.emmbedings = emmbedings
-        if (i % 10 === 0) fs.writeFileSync('data.json', JSON.stringify(data))
+        const embeddings = await Promise.all(sentenceSplitter.splitText(toIndexData).map(createEmbedding))
+        service.embeddings = embeddings
+        if (i % 100 === 0) fs.writeFileSync('data.json', JSON.stringify(data))
         console.log(i++)
     }
-    // // for (let i = 0; i < toProcess; i++) {}
-    // const document = new Document({ text: json[0].toIndexData })
-    // // const document2 = new Document({ text: json[1].toIndexData })
-    // // Split text and create embeddings. Store them in a VectorStoreIndex
-    // const index = await VectorStoreIndex.fromDocuments([document])
-    // // console.log(index.docStore)
-    // console.log(index)
-    // const queryEngine = index.asQueryEngine()
-    // const response = await queryEngine.query('Actele necesare pentru somaj?')
-    // console.log(response)
+    fs.writeFileSync('data.json', JSON.stringify(data, null, 2))
 }
 
 main().then(() => console.log('Done!'))

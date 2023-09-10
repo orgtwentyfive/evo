@@ -1,7 +1,8 @@
-import { similarity } from 'llamaindex'
 import { openai } from './config'
 import { bigData } from './bigData'
 import { BigDataType, ConversationType } from './types'
+import { map } from 'async'
+import { SentenceSplitter, similarity } from 'llamaindex'
 
 export async function createEmbedding(text: string) {
     const { data } = await openai.embeddings.create({
@@ -17,8 +18,8 @@ export function getTopEmbeddingMatch(embeddedQuestion: number[], count: number =
 
     for (const service of bigData) {
         let maxCore = 0
-        for (const embeddings of service.embeddings) {
-            const sim = similarity(embeddedQuestion, embeddings)
+        for (const embedding of service.embeddings) {
+            const sim = similarity(embeddedQuestion, embedding)
             if (maxCore < sim) {
                 maxCore = sim
             }
@@ -47,7 +48,8 @@ export async function pickMostRelevantDocument(topResult: ReturnType<typeof getT
                 role: 'system',
                 content: `
                 Use docTitle to find most relevant document for question.
-                Respond with the codes for most relevant documents.
+                Respond with the codes for most relevant documents from json.
+                With codes only
                 Example: [01312345, C123456, 123456]
                 It's ok to not find any document.
                 `.trim(),
@@ -66,6 +68,7 @@ export async function pickMostRelevantDocument(topResult: ReturnType<typeof getT
         max_tokens: 512,
     })
     const matches = response.choices[0].message.content?.match(/[A-Z]{0,5}\d+/g)
+    console.log('matches:', matches)
     if (matches && matches.length) {
         return [...matches].map((code) => getDocumentByCode(code))
     }
@@ -78,33 +81,38 @@ export function getDocumentByCode(code: string) {
     throw new Error(`Document not found for code: ${code}`)
 }
 
-export async function answerBasedOnDocument(document: BigDataType, conversation: string | ConversationType[]) {
+export async function answersBasedOnDocument(document: BigDataType, conversation: string | ConversationType[]) {
     const content: ConversationType[] = conversation instanceof Array ? conversation : [{ role: 'user', content: conversation }]
-    const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo-16k',
-        messages: [
-            {
-                role: 'system',
-                content: `
-                Finds the answer in the provided document based on a question from the user.
-                Do not answer with information outside the document.
-                Use only information in the provided document.
-                Respond directly to the user's question.
-                And don't change the subject.
-                Don't answer with information outside the document.
-                If there is no answer in the document, respond with "NULL"
-                Document: 
-                """
-                ${document.toIndexData}
-                """
-                `,
-            },
-            ...content,
-        ],
+    const spitedText = await splitText(document.toIndexData, 21_000, 0)
+    const responses = await map(spitedText, async (chunkText: string) => {
+        const response = await openai.chat.completions.create({
+            model: 'gpt-3.5-turbo-16k',
+            messages: [
+                {
+                    role: 'system',
+                    content: `
+                    Finds the answer in the provided document based on a question from the user.
+                    Do not answer with information outside the document.
+                    Use only information in the provided document.
+                    Respond directly to the user's question.
+                    And don't change the subject.
+                    Don't answer with information outside the document.
+                    If there is no answer in the document, respond with "NULL"
+                    Respond in the same language.
+                    Document: 
+                    """
+                    ${chunkText}
+                    """
+                    `,
+                },
+                ...content,
+            ],
+        })
+        const result = response.choices[0].message.content
+        if (!result) throw new Error('No response from GPT-3')
+        return result
     })
-    const result = response.choices[0].message.content
-    if (!result) throw new Error('No response from GPT-3')
-    return result
+    return responses.map((e) => (e === 'NULL' ? null : e)).filter(Boolean)
 }
 
 export async function rephraseCorrectlyWithGpt4(string: string) {
@@ -130,7 +138,7 @@ export async function rephraseCorrectlyWithGpt4(string: string) {
     return content
 }
 
-export async function combineAnswers(data: (BigDataType & { answer: string })[]) {
+export async function combineAnswers(data: (BigDataType & { answers: string[] })[], question: string) {
     const response = await openai.chat.completions.create({
         model: 'gpt-4',
         stream: true,
@@ -143,7 +151,15 @@ export async function combineAnswers(data: (BigDataType & { answer: string })[])
                 Summarize it but keep important details.
                 Respond in markdown format.
                 Respond in the same language.
+                If document with one of the answer is not relevant than ignore it.
                 Try to organize the information in a logical way.
+                If there answers is not relevant for question than ignore it.
+                Answer the question directly with the information provided.
+                Do not provide information outside the document.
+                Question: ${question}
+                If you can't reply, respond with "NULL"
+                Do not mix the answers
+                Answers correspond to one document.
                 `.trim(),
             },
             {
@@ -151,7 +167,7 @@ export async function combineAnswers(data: (BigDataType & { answer: string })[])
                 content: data.reduce((acc, cur) => {
                     const result = `
                     Document: ${cur.title}
-                    Answer: ${cur.answer}
+                    Answers: [${cur.answers.join('***')}]
                     `.trim()
                     return acc + result + '\n==\n'
                 }, ''),
@@ -177,4 +193,12 @@ export async function write(str: string) {
             resolve(null)
         })
     })
+}
+
+export async function splitText(text: string, chunkSize = 10000, chunkOverlap = 1000) {
+    const sentenceSplitter = new SentenceSplitter({
+        chunkSize,
+        chunkOverlap,
+    })
+    return sentenceSplitter.splitText(text)
 }
