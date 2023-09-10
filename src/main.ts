@@ -1,3 +1,4 @@
+import '@total-typescript/ts-reset'
 import { map } from 'async'
 import {
     answerBasedOnDocument,
@@ -8,10 +9,12 @@ import {
     pickMostRelevantDocument,
     rephraseCorrectlyWithGpt4,
     resolveChatGptStream,
+    write,
 } from './tools'
+import { BigDataType } from './types'
 
 async function main() {
-    const question = 'Cum pot sa zbor pe luna pasaport?'
+    const question = 'cum ma casatoresc?'
     const rephraseQuestion = await rephraseCorrectlyWithGpt4(question)
     console.log('Rephrased question:', rephraseQuestion)
 
@@ -19,18 +22,24 @@ async function main() {
     const customFilter = getTopEmbeddingMatch(embeddedQuestion, 40)
     const filteredByAi = await pickMostRelevantDocument(customFilter, question)
 
-    const results = await map(filteredByAi, async (document) => {
+    const results = await map(filteredByAi, async (document: BigDataType) => {
         const answer = await answerBasedOnDocument(document, question)
         if (answer === 'NULL') return null
         return { ...document, answer }
     })
-    if (results.length === 0) {
+    const filteredResult = results.filter(Boolean)
+    if (filteredResult.length === 0) {
         console.log('Nu am așa informație.')
         return
     }
-    const filteredResult = results.filter((e) => e !== null)
-    const result = await resolveChatGptStream(combineAnswers(filteredResult))
-    console.log('Result:', result)
+    let result = ''
+    for await (const stream of await combineAnswers(filteredResult)) {
+        const streamText = stream.choices[0].delta?.content
+        if (streamText) {
+            result += streamText
+            await write(streamText)
+        }
+    }
 }
 
 main()

@@ -8,6 +8,7 @@
         "dev": "tsx ./src/main.ts"
     },
     "devDependencies": {
+        "@total-typescript/ts-reset": "^0.5.1",
         "@types/async": "^3.2.20",
         "@types/copy-paste": "^1.1.31",
         "@types/node": "^20.5.9",

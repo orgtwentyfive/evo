@@ -143,6 +143,7 @@ export async function combineAnswers(data: (BigDataType & { answer: string })[])
                 Summarize it but keep important details.
                 Respond in markdown format.
                 Respond in the same language.
+                Try to organize the information in a logical way.
                 `.trim(),
             },
             {
@@ -156,6 +157,7 @@ export async function combineAnswers(data: (BigDataType & { answer: string })[])
                 }, ''),
             },
         ],
+        temperature: 0.5,
     })
     return response
 }
@@ -167,4 +169,12 @@ export async function resolveChatGptStream(stream: ReturnType<typeof combineAnsw
         result.push(message.choices[0].delta.content!)
     }
     return result.join('\n')
+}
+
+export async function write(str: string) {
+    return new Promise((resolve) => {
+        process.stdout.write(str, () => {
+            resolve(null)
+        })
+    })
 }
