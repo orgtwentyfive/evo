@@ -14,67 +14,26 @@ const openai = new OpenAI({
 })
 let i = 0
 async function main() {
-    for (let item of data) {
-        item.embeddings = item.embedding
-        delete item.embedding
-        delete item.toIndexDataEn
+    const sentenceSplitter = new SentenceSplitter({
+        chunkSize: 5000,
+        chunkOverlap: 1000,
+    })
+    for (let service of data) {
+        if (service.chunk) continue
+        const { toIndexData } = service
+        const emmbedings = await Promise.all(
+            sentenceSplitter.splitText(toIndexData).map(async (text) => {
+                const { data } = await openai.embeddings.create({
+                    input: text,
+                    model: 'text-embedding-ada-002',
+                })
+                return data[0].embedding
+            }),
+        )
+        service.emmbedings = emmbedings
+        if (i % 10 === 0) fs.writeFileSync('data.json', JSON.stringify(data))
+        console.log(i++)
     }
-    fs.writeFileSync('data.json', JSON.stringify(data, null, 4))
-
-    // await tranlate()
-    // const question = 'cum ma casatoresc legal in republica moldova?'
-    // const questionEmbedding = await createEmbedding(question)
-    // let num = 20
-    // let top3Services: any[] = []
-    // let top3Scores: number[] = []
-    // console.time('search')
-    // for (const service of data) {
-    //     if (!service.emmbedings) continue
-    //     for (const emmbedings of service.emmbedings) {
-    //         const sim = similarity(questionEmbedding, emmbedings)
-    //         if (top3Scores.length < num) {
-    //             top3Scores.push(sim)
-    //             top3Services.push(service)
-    //         }
-    //         if (top3Scores.length === num) {
-    //             const minScore = Math.min(...top3Scores)
-    //             const minIndex = top3Scores.indexOf(minScore)
-    //             if (sim > minScore) {
-    //                 top3Scores[minIndex] = sim
-    //                 top3Services[minIndex] = service
-    //             }
-    //         }
-    //     }
-    // }
-    // console.timeEnd('search')
-    // for (let i = 0; i < top3Services.length; i++) {
-    //     console.log('===========================')
-    //     console.log(`${top3Services[i].title} - ${top3Scores[i]}; code: ${top3Services[i].code}`)
-    // }
-    // for (let emmbedings of service.emmbedings) {
-    //     const sim = similarity(questionEmbedding, emmbedings)
-    //     console.log(sim)
-    // }
-    // const sentenceSplitter = new SentenceSplitter({
-    //     chunkSize: 5000,
-    //     chunkOverlap: 1000,
-    // })
-    // for (let service of data) {
-    //     if (service.emmbedings) continue
-    //     const { toIndexData } = service
-    //     const emmbedings = await Promise.all(
-    //         sentenceSplitter.splitText(toIndexData).map(async (text) => {
-    //             const { data } = await openai.embeddings.create({
-    //                 input: text,
-    //                 model: 'text-embedding-ada-002',
-    //             })
-    //             return data[0].embedding
-    //         }),
-    //     )
-    //     service.emmbedings = emmbedings
-    //     if (i % 10 === 0) fs.writeFileSync('data.json', JSON.stringify(data))
-    //     console.log(i++)
-    // }
     // // for (let i = 0; i < toProcess; i++) {}
     // const document = new Document({ text: json[0].toIndexData })
     // // const document2 = new Document({ text: json[1].toIndexData })
@@ -88,28 +47,6 @@ async function main() {
 }
 
 main().then(() => console.log('Done!'))
-
-async function tranlate() {
-    let i = 0
-    for (const item of data) {
-        if (item.toIndexDataEn) continue
-        const { data: tranlate } = await axios.post(
-            'https://api-free.deepl.com/v2/translate',
-            {
-                text: [item.toIndexData],
-                target_lang: 'EN',
-            },
-            {
-                headers: {
-                    Authorization: 'DeepL-Auth-Key 7817f4a0-fb9e-47b8-ae44-848755da4ac3:fx',
-                },
-            },
-        )
-        item.toIndexDataEn = tranlate.translations[0].text
-        fs.writeFileSync('data.json', JSON.stringify(data, null, 4))
-        console.log(i++)
-    }
-}
 
 function estimatePrice(text: string, pricePerToken = 0.0001 / 1000) {
     const encoded = encode(text)

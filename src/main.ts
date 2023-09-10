@@ -4,17 +4,15 @@ import {
     answerBasedOnDocument,
     combineAnswers,
     createEmbedding,
-    getDocumentByCode,
     getTopEmbeddingMatch,
     pickMostRelevantDocument,
     rephraseCorrectlyWithGpt4,
-    resolveChatGptStream,
     write,
 } from './tools'
 import { BigDataType } from './types'
 
 async function main() {
-    const question = 'cum ma casatoresc?'
+    const question = 'cum dau in exploatare un impobil?'
     const rephraseQuestion = await rephraseCorrectlyWithGpt4(question)
     console.log('Rephrased question:', rephraseQuestion)
 
@@ -32,6 +30,7 @@ async function main() {
         console.log('Nu am așa informație.')
         return
     }
+    console.log('Filtered result:', filteredResult.map)
     let result = ''
     for await (const stream of await combineAnswers(filteredResult)) {
         const streamText = stream.choices[0].delta?.content
